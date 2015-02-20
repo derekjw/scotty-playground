@@ -19,7 +19,7 @@ getPerson personId = do
     (person :: Maybe Person) <- get personKey
     return . h1 . toHtml . show $ person
   where
-    personKey = toSqlKey (fromIntegral personId)
+    personKey = toSqlKey . fromIntegral $ personId
 
 getRoot :: Html
 getRoot = h1 "Scotty, nobody is here!"
