@@ -19,20 +19,26 @@ import           Text.Blaze.Html.Renderer.Text        (renderHtml)
 import           Web.Scotty                           (ActionM, ScottyM, get,
                                                        html, middleware, param,
                                                        scotty)
+import Prelude hiding (catch)
+import System.Directory
+import Control.Exception
+import System.IO.Error hiding (catch)
 
 main :: IO ()
-main = runStderrLoggingT . withSqlPool $ \pool -> liftIO $ do
+main = do
+    removeIfExists "my.db"
+    runStderrLoggingT . withSqlPool $ \pool -> liftIO $ do
 
-    runSql pool $ do
-        runMigration migrateModel
-        _ <- insert $ Person "John Doe" 35
-        _ <- insert $ Person "Jane Doe" 32
-        return ()
+        runSql pool $ do
+            runMigration migrateModel
+            _ <- insert $ Person "John Doe" 35
+            _ <- insert $ Person "Jane Doe" 32
+            return ()
 
-    port <- getPort
-    scotty port $ do
-        middleware logStdoutDev
-        router pool
+        port <- getPort
+        scotty port $ do
+            middleware logStdoutDev
+            router pool
 
 router :: ConnectionPool -> ScottyM ()
 router pool = do
@@ -52,7 +58,7 @@ router pool = do
         blaze $ getWord beam
 
 withSqlPool :: (ConnectionPool -> LoggingT IO ()) -> LoggingT IO ()
-withSqlPool = withSqlitePool ":memory:" 10
+withSqlPool = withSqlitePool "my.db" 10
 
 getPort :: IO Int
 getPort = fmap read $ getEnv "PORT"
@@ -65,3 +71,9 @@ blazeSql pool sql = liftIO (runSql pool sql) >>= blaze
 
 runSql :: ConnectionPool -> SqlPersistM a -> IO a
 runSql = flip runSqlPersistMPool
+
+removeIfExists :: FilePath -> IO ()
+removeIfExists fileName = removeFile fileName `catch` handleExists
+  where handleExists e
+          | isDoesNotExistError e = return ()
+          | otherwise = throwIO e
