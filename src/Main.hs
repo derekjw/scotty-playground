@@ -1,6 +1,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 module Main where
 
+import           Control.Exception
 import           Control.Monad.IO.Class               (liftIO)
 import           Control.Monad.Logger                 (LoggingT,
                                                        runStderrLoggingT)
@@ -13,16 +14,14 @@ import           Database.Persist.Sqlite              (withSqlitePool)
 import           Handlers
 import           Model
 import           Network.Wai.Middleware.RequestLogger (logStdoutDev)
+import           System.Directory
 import           System.Environment                   (getEnv)
+import           System.IO.Error
 import           Text.Blaze.Html                      (Html)
 import           Text.Blaze.Html.Renderer.Text        (renderHtml)
 import           Web.Scotty                           (ActionM, ScottyM, get,
                                                        html, middleware, param,
                                                        scotty)
-import Prelude hiding (catch)
-import System.Directory
-import Control.Exception
-import System.IO.Error hiding (catch)
 
 main :: IO ()
 main = do
