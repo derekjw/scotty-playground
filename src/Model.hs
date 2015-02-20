@@ -4,6 +4,7 @@
 {-# LANGUAGE QuasiQuotes                #-}
 {-# LANGUAGE TemplateHaskell            #-}
 {-# LANGUAGE TypeFamilies               #-}
+{-# LANGUAGE MultiParamTypeClasses      #-}
 module Model where
 
 import           Database.Persist.TH
