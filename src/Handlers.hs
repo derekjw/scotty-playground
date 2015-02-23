@@ -22,7 +22,7 @@ import           Model
 import           Text.Blaze.Html5
 
 getPeople :: SqlPersistM Html
-getPeople = selectAllPeople $= peopleEntityToHtml $$ groupPeopleHtml
+getPeople = selectAllPeople $= peopleEntityToHtml $$ foldSink
 
 selectAllPeople :: (MonadResource m, PersistEntityBackend Person ~ backend, MonadReader env m, HasPersistBackend env backend) => Source m (Entity Person)
 selectAllPeople = selectSource [] []
@@ -30,8 +30,8 @@ selectAllPeople = selectSource [] []
 peopleEntityToHtml :: (Monad m) => Conduit (Entity Person) m Html
 peopleEntityToHtml = CL.map (h1 . toHtml . show)
 
-groupPeopleHtml :: (Monad m) => Sink Html m Html
-groupPeopleHtml = CL.fold mappend mempty
+foldSink :: (Monad m, Monoid a) => Sink a m a
+foldSink = CL.fold mappend mempty
 
 getPerson :: Integer -> SqlPersistM Html
 getPerson personId = do
