@@ -65,7 +65,7 @@ getPort = fmap read $ getEnv "PORT"
 blaze :: Html -> ActionM ()
 blaze = html . renderHtml
 
-blazeSql :: ConnectionPool -> SqlPersistM Html -> ActionM()
+blazeSql :: ConnectionPool -> SqlPersistM Html -> ActionM ()
 blazeSql pool sql = liftIO (runSql pool sql) >>= blaze
 
 runSql :: ConnectionPool -> SqlPersistM a -> IO a
