@@ -7,7 +7,7 @@
 module Handlers where
 
 import           Data.Conduit         (Source)
-import           Data.Conduit         (Conduit, Sink, ($$), ($=))
+import           Data.Conduit         (Conduit, Sink, ($$), (=$=))
 import qualified Data.Conduit.List    as CL
 import           Data.Monoid          (mconcat)
 import           Data.Monoid          (Monoid (mappend, mempty))
@@ -18,7 +18,7 @@ import           Model
 import           Text.Blaze.Html5
 
 getPeople :: SqlPersistM Html
-getPeople = selectAllPeople $= peopleEntityToHtml $$ foldSink
+getPeople = selectAllPeople =$= peopleEntityToHtml $$ foldSink
 
 selectAllPeople :: Source SqlPersistM (Entity Person)
 selectAllPeople = selectSource [] []
