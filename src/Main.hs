@@ -23,6 +23,14 @@ import           Web.Scotty                           (ActionM, ScottyM, get,
                                                        html, middleware, param,
                                                        scotty)
 
+import Database.Persist.Sql (runSqlPool, SqlBackend)
+import Data.Conduit (Source)
+import Data.Conduit.Lift (runReaderC)
+import Data.Pool (withResource)
+import Control.Monad.Logger (NoLoggingT)
+import Control.Monad.Trans.Resource (ResourceT)
+import Control.Monad.Trans.Control (MonadBaseControl)
+
 main :: IO ()
 main = do
     removeIfExists "my.db"
@@ -76,3 +84,13 @@ removeIfExists fileName = removeFile fileName `catch` handleExists
   where handleExists e
           | isDoesNotExistError e = return ()
           | otherwise = throwIO e
+
+
+
+
+runSqlSource :: ConnectionPool -> Source SqlPersistM Html -> Source IO Html
+runSqlSource pool sqlSource = withResource pool (\conn -> runSqlSourceStep conn sqlSource)
+
+runSqlSourceStep :: SqlBackend -> Source SqlPersistM Html -> Source (NoLoggingT (ResourceT IO)) Html
+runSqlSourceStep = runReaderC
+
