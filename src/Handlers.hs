@@ -11,8 +11,9 @@ import qualified Data.Conduit.List    as CL
 import           Data.Monoid          (Monoid (mconcat, mappend, mempty))
 import           Data.Text.Lazy       (Text)
 import           Database.Persist     (get, selectSource)
-import           Database.Persist.Sql (Entity, SqlPersistM, toSqlKey)
+import           Database.Persist.Sql (Entity, SqlPersistM, entityVal, toSqlKey)
 import           Model
+import           Prelude              hiding (span)
 import           Text.Blaze.Html5
 
 getPeople :: SqlPersistM Html
@@ -22,7 +23,14 @@ selectAllPeople :: Source SqlPersistM (Entity Person)
 selectAllPeople = selectSource [] []
 
 peopleToHtml :: (Monad m) => Conduit (Entity Person) m Html
-peopleToHtml = CL.map (h1 . toHtml . show)
+peopleToHtml = CL.map personToHtml
+
+personToHtml :: Entity Person -> Html
+personToHtml entity = p $ do
+    span . toHtml $ personName person
+    span . toHtml $ personAge person
+  where
+    person = entityVal entity
 
 foldSink :: (Monad m, Monoid a) => Sink a m a
 foldSink = CL.fold mappend mempty

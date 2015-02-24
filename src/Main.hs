@@ -5,7 +5,8 @@ import           Control.Exception
 import           Control.Monad.IO.Class               (liftIO)
 import           Control.Monad.Logger                 (LoggingT,
                                                        runStderrLoggingT)
-import           Data.Conduit                         (Source, transPipe, (=$=), ($$))
+import           Data.Conduit                         (Source, transPipe, ($$),
+                                                       (=$=))
 import           Database.Persist                     (insert)
 import           Database.Persist.Sql                 (ConnectionPool,
                                                        SqlPersistM,
@@ -52,7 +53,7 @@ router pool = do
     get "/people" $
         blazeSql pool getPeople
 
-    get "/test/people" $
+    get "/test/people" $ -- broken
         liftIO (runSqlSource pool selectAllPeople $$ peopleToHtml =$= foldSink) >>= blaze
 
     get "/" $
