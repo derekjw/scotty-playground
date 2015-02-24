@@ -5,8 +5,7 @@ import           Control.Exception
 import           Control.Monad.IO.Class               (liftIO)
 import           Control.Monad.Logger                 (LoggingT,
                                                        runStderrLoggingT)
-import           Control.Monad.Morph                  (hoist)
-import           Data.Conduit                         (Source)
+import           Data.Conduit                         (Source, transPipe, (=$=), ($$))
 import           Database.Persist                     (insert)
 import           Database.Persist.Sql                 (ConnectionPool,
                                                        SqlPersistM,
@@ -34,6 +33,8 @@ main = do
             runMigration migrateModel
             _ <- insert $ Person "John Doe" 35
             _ <- insert $ Person "Jane Doe" 32
+            _ <- insert $ Person "The Dude" 38
+            _ <- insert $ Person "Me" 34
             return ()
 
         port <- getPort
@@ -50,6 +51,9 @@ router pool = do
 
     get "/people" $
         blazeSql pool getPeople
+
+    get "/test/people" $
+        liftIO (runSqlSource pool selectAllPeople $$ peopleToHtml =$= foldSink) >>= blaze
 
     get "/" $
         blazeSql pool getPeople
@@ -80,4 +84,4 @@ removeIfExists fileName = removeFile fileName `catch` handleExists
           | otherwise = throwIO e
 
 runSqlSource :: ConnectionPool -> Source SqlPersistM a -> Source IO a
-runSqlSource pool = hoist $ runSql pool
+runSqlSource pool = transPipe $ runSql pool
