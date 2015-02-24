@@ -5,6 +5,8 @@ import           Control.Exception
 import           Control.Monad.IO.Class               (liftIO)
 import           Control.Monad.Logger                 (LoggingT,
                                                        runStderrLoggingT)
+import           Control.Monad.Morph                  (hoist)
+import           Data.Conduit                         (Source)
 import           Database.Persist                     (insert)
 import           Database.Persist.Sql                 (ConnectionPool,
                                                        SqlPersistM,
@@ -76,3 +78,6 @@ removeIfExists fileName = removeFile fileName `catch` handleExists
   where handleExists e
           | isDoesNotExistError e = return ()
           | otherwise = throwIO e
+
+runSqlSource :: ConnectionPool -> Source SqlPersistM a -> Source IO a
+runSqlSource pool = hoist $ runSql pool
