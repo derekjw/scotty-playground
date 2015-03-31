@@ -26,9 +26,10 @@ peopleToHtml :: (Monad m) => Conduit (Entity Person) m Html
 peopleToHtml = CL.map personToHtml
 
 personToHtml :: Entity Person -> Html
-personToHtml entity = p $ do
-    span . toHtml $ personName person
-    span . toHtml $ personAge person
+personToHtml entity =
+    p $ do
+        span . toHtml $ personName person
+        span . toHtml $ personAge person
   where
     person = entityVal entity
 
