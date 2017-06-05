@@ -1,0 +1,31 @@
+name: scotty-playground
+version: '0.1.0.0'
+category: Web
+author: Derek Williams
+maintainer: derek@fyrie.net
+license: BSD3
+other-extensions:
+- OverloadedStrings
+- ScopedTypeVariables
+- GADTs
+- GeneralizedNewtypeDeriving
+- QuasiQuotes
+- TemplateHaskell
+- TypeFamilies
+dependencies:
+- base
+- text
+- transformers
+- wai-extra
+- scotty
+- persistent
+- persistent-sqlite
+- persistent-template
+- blaze-html
+- monad-logger
+- directory
+- conduit
+executables:
+  scotty-playground:
+    main: Main.hs
+    source-dirs: src
